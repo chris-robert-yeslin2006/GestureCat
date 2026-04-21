@@ -36,7 +36,8 @@ const onePieceGifs = {
   ATTENTION: '/assets/one_piece/attention.gif',
   RIGHT_HAND_UP: '/assets/one_piece/right_hand_up.gif',
   LEFT_HAND_UP: '/assets/one_piece/left_hand_up.gif',
-  HAND_CROSS: '/assets/one_piece/hand_cross.gif'
+  HAND_CROSS: '/assets/one_piece/hand_cross.gif',
+  STATUS: '/assets/one_piece/status.gif'
 };
 
 // One Piece Background Music
@@ -132,7 +133,11 @@ function triggerAction(actionName, customUrl = null) {
   
   setTimeout(() => {
     isPlaying = false;
-    memeOutput.src = 'https://placehold.co/400x400/png?text=Waiting+for+Gesture';
+    if (currentMode === 'one_piece') {
+      memeOutput.src = 'https://placehold.co/400x400/png?text=One+Piece';
+    } else {
+      memeOutput.src = 'https://placehold.co/400x400/png?text=Waiting+for+Gesture';
+    }
     memeContainer.classList.remove('active');
   }, durationMs);
 }
@@ -302,6 +307,7 @@ function processLandmarks(results) {
       else if (squat) triggerAction('SQUAT');
       else if (handCross) triggerAction('HAND_CROSS');
       else if (attention) triggerAction('ATTENTION');
+      else if (bothHandsUp) triggerAction('STATUS');
       else if (rightHandUp) triggerAction('RIGHT_HAND_UP');
       else if (leftHandUp) triggerAction('LEFT_HAND_UP');
       else if (fastSpeed) triggerAction('HAND_MOVEMENT');
@@ -353,6 +359,7 @@ startBtn.addEventListener('click', () => {
     console.log('✅ Camera & MediaPipe are fully up and running! Try making a gesture.');
     if (currentMode === 'one_piece') {
       overtakenAudio.play().catch(e => console.error('Overtaken play error:', e));
+      memeOutput.src = 'https://placehold.co/400x400/png?text=One+Piece';
     }
   });
 });
