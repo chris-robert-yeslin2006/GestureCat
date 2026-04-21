@@ -18,6 +18,12 @@ if (memeModeSelect) {
   memeModeSelect.addEventListener('change', (e) => {
     currentMode = e.target.value;
     console.log('Mode switched to:', currentMode);
+    if (currentMode === 'one_piece') {
+      overtakenAudio.play().catch(e => console.error('Overtaken play error:', e));
+    } else {
+      overtakenAudio.pause();
+      overtakenAudio.currentTime = 0;
+    }
   });
 }
 
@@ -32,6 +38,23 @@ const onePieceGifs = {
   LEFT_HAND_UP: '/assets/one_piece/left_hand_up.gif',
   HAND_CROSS: '/assets/one_piece/hand_cross.gif'
 };
+
+// One Piece Background Music
+const overtakenAudio = new Audio('/music/overtaken.mp3');
+overtakenAudio.loop = true;
+overtakenAudio.volume = 0.5;
+
+const onePieceCache = {};
+
+Object.keys(onePieceGifs).forEach(key => {
+  const url = onePieceGifs[key];
+  fetch(url)
+    .then(res => res.blob())
+    .then(blob => {
+      onePieceCache[key] = URL.createObjectURL(blob);
+    })
+    .catch(err => console.warn('Failed to cache One Piece GIF:', key, err));
+});
 
 // 🔥 DEVELOPER AREA 🔥
 const hardcodedGestures = [];
@@ -86,8 +109,8 @@ function triggerAction(actionName, customUrl = null) {
 
   let durationMs = 2000;
 
-  if (currentMode === 'one_piece' && onePieceGifs[actionName]) {
-    memeOutput.src = onePieceGifs[actionName];
+  if (currentMode === 'one_piece' && (onePieceCache[actionName] || onePieceGifs[actionName])) {
+    memeOutput.src = onePieceCache[actionName] || onePieceGifs[actionName];
     durationMs = 2000;
   } else if (customUrl) {
     memeOutput.src = customUrl;
@@ -328,5 +351,8 @@ startBtn.addEventListener('click', () => {
   console.log('📷 Camera starting...');
   camera.start().then(() => {
     console.log('✅ Camera & MediaPipe are fully up and running! Try making a gesture.');
+    if (currentMode === 'one_piece') {
+      overtakenAudio.play().catch(e => console.error('Overtaken play error:', e));
+    }
   });
 });
