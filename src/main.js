@@ -11,6 +11,28 @@ let isPlaying = false;
 let previousPoseTree = null;
 let takeDevSnapshot = false;
 
+// Theme Mode Toggle
+let currentMode = 'cat';
+const memeModeSelect = document.getElementById('meme-mode');
+if (memeModeSelect) {
+  memeModeSelect.addEventListener('change', (e) => {
+    currentMode = e.target.value;
+    console.log('Mode switched to:', currentMode);
+  });
+}
+
+// One Piece Mode Assets
+const onePieceGifs = {
+  KICK: 'https://media1.tenor.com/m/ioz-xabcfq4AAAAC/one-piece-burning-blood-one-piece.gif',
+  SQUAT: 'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NDg3N29hM3ZpcTNsdW83bTRscXJhZXNrZW05cGxvY21jZ3Z3MWJycyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/T9lEux2hPQYne/giphy.gif',
+  HEAD_MOVEMENT: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdDk3azJwd2d0NmdiNG4zMHNmeWd2c2h6eDBsdmx0MWJrYzdsd2wzciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/tIZUToOMEFGM0/giphy.gif',
+  HAND_MOVEMENT: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDdrd3M2ZDBjajF0c3ZyaXBleW1wMzVlM2hieGZnNWRxNzE0dXNkeiZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/T9lEux2hPQYne/giphy.gif',
+  ATTENTION: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc3poaWpyeXQyankxNXZmdDkyNzBidXFkcndjZHluNjc5cDRuejdzZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2x6wXvQCaRpQD3ieHz/giphy.gif',
+  RIGHT_HAND_UP: 'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3bnVsYzVoMjQydHJiMHhtOHNxMmZtMHlkdWp2emY1dmM3YWlvaHBkMSZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/DSxKEQoQix9hC/giphy.gif',
+  LEFT_HAND_UP: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTl1cTA2enZudmFtODlxeXZxMWxwdGFmd3UyYWJtZ2Z4NnNvNmh1MiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ObHA57EFxQ3O8/giphy.gif',
+  HAND_CROSS: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTl1cTA2enZudmFtODlxeXZxMWxwdGFmd3UyYWJtZ2Z4NnNvNmh1MiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3nyIj1d1igD4SGhVvu/giphy.gif'
+};
+
 // 🔥 DEVELOPER AREA 🔥
 const hardcodedGestures = [];
 
@@ -64,14 +86,23 @@ function triggerAction(actionName, customUrl = null) {
 
   let durationMs = 2000;
 
-  if (customUrl) {
+  if (currentMode === 'one_piece' && onePieceGifs[actionName]) {
+    memeOutput.src = onePieceGifs[actionName];
+    durationMs = 2000;
+  } else if (customUrl) {
     memeOutput.src = customUrl;
   } else if (assetsCache[actionName]) {
     memeOutput.src = assetsCache[actionName].gifUrl;
     durationMs = assetsCache[actionName].durationMs;
     const audioObj = assetsCache[actionName].audio;
-    audioObj.currentTime = 0;
-    audioObj.play().catch(e => console.error('Audio play error:', e));
+    if (audioObj) {
+      audioObj.currentTime = 0;
+      audioObj.play().catch(e => console.error('Audio play error:', e));
+    }
+  } else {
+    isPlaying = false;
+    memeContainer.classList.remove('active');
+    return;
   }
   
   console.log('--- Action Triggered: ' + actionName + ' ---\nLink: ' + memeOutput.src + '\nCooldown: ' + durationMs + 'ms');
@@ -147,6 +178,14 @@ function processLandmarks(results) {
     const rightShoulder = landmarks[12];
     const leftWrist = landmarks[15];
     const rightWrist = landmarks[16];
+    
+    // Additional landmarks for new modes
+    const leftHip = landmarks[23];
+    const rightHip = landmarks[24];
+    const leftKnee = landmarks[25];
+    const rightKnee = landmarks[26];
+    const leftAnkle = landmarks[27];
+    const rightAnkle = landmarks[28];
 
     // Evaluate Velocity base actions
     let fastSpeed = false;
@@ -178,25 +217,88 @@ function processLandmarks(results) {
     const rightHandUp = rightWrist.visibility > 0.5 && rightWrist.y < rightShoulder.y && 
                         (leftWrist.visibility < 0.5 || leftWrist.y > leftShoulder.y);
 
+    // Physical left hand means index 15. It must be UP (lower Y value) and physical right hand DOWN or OFFSCREEN
+    const leftHandUp = leftWrist.visibility > 0.5 && leftWrist.y < leftShoulder.y && 
+                       (rightWrist.visibility < 0.5 || rightWrist.y > rightShoulder.y);
+
     // Absolute position face strays beyond outer boundaries (e.g., Leaning left or right deeply)
     // 0.5 is center. > 0.7 means they leaned far left. < 0.3 means they leaned far right.
     const faceMovement = nose.x > 0.7 || nose.x < 0.3 || nose.y > 0.7 || nose.y < 0.3;
     
+    // --- One Piece Specific Movements ---
+    let kick = false;
+    let squat = false;
+    let attention = false;
+
+    // Kick: ankle/knee rising high relative to hip
+    if (leftAnkle && leftHip && leftAnkle.visibility > 0.5 && leftHip.visibility > 0.5) {
+       if (leftAnkle.y < leftHip.y + 0.1 || (leftKnee && leftKnee.y < leftHip.y + 0.1)) kick = true; 
+    }
+    if (rightAnkle && rightHip && rightAnkle.visibility > 0.5 && rightHip.visibility > 0.5) {
+       if (rightAnkle.y < rightHip.y + 0.1 || (rightKnee && rightKnee.y < rightHip.y + 0.1)) kick = true; 
+    }
+
+    // Squat: hips near knee level, or face goes low (deep squat)
+    if (leftHip && leftKnee && leftHip.visibility > 0.5 && leftKnee.visibility > 0.5) {
+       if (leftHip.y > leftKnee.y - 0.05) squat = true;
+    } else if (rightHip && rightKnee && rightHip.visibility > 0.5 && rightKnee.visibility > 0.5) {
+       if (rightHip.y > rightKnee.y - 0.05) squat = true;
+    } else if (nose.y > 0.75) {
+       squat = true;
+    }
+
+    // Attention: hands at the side/near body
+    if (leftWrist && rightWrist && leftHip && rightHip && 
+        leftWrist.visibility > 0.5 && rightWrist.visibility > 0.5 &&
+        leftHip.visibility > 0.5 && rightHip.visibility > 0.5) {
+       let distLeft = Math.sqrt(Math.pow(leftWrist.x - leftHip.x, 2) + Math.pow(leftWrist.y - leftHip.y, 2));
+       let distRight = Math.sqrt(Math.pow(rightWrist.x - rightHip.x, 2) + Math.pow(rightWrist.y - rightHip.y, 2));
+       if (distLeft < 0.25 && distRight < 0.25) {
+          attention = true;
+       }
+    } else if (leftWrist.visibility > 0.5 && rightWrist.visibility > 0.5) {
+       // fallback if hips aren't perfectly visible
+       if (leftWrist.y > leftShoulder.y + 0.3 && rightWrist.y > rightShoulder.y + 0.3 && Math.abs(leftWrist.x - rightWrist.x) < 0.3) {
+          attention = true;
+       }
+    }
+    
+    // Hand Cross: wrists are close together near chest level
+    let handCross = false;
+    if (leftWrist.visibility > 0.5 && rightWrist.visibility > 0.5 && !attention) {
+       let wristDist = Math.abs(leftWrist.x - rightWrist.x) + Math.abs(leftWrist.y - rightWrist.y);
+       if (wristDist < 0.2 && leftWrist.y > leftShoulder.y - 0.2 && leftWrist.y < leftShoulder.y + 0.4) {
+          handCross = true;
+       }
+    }
+    
     // Master Trigger Condition List
     if (matchedHardcoded) {
       triggerAction('HARDCODED', matchedHardcoded.gifUrl);
-    } else if (bothHandsUp) {
-      triggerAction('HANDS_UP');
-    } else if (rightHandUp) {
-      triggerAction('RIGHT_HAND_UP');
-    } else if (fastSpeed) {
-      triggerAction('FAST');
-    } else if (headShake) {
-      triggerAction('HEAD_SHAKE');
-    } else if (headNod) {
-      triggerAction('HEAD_NOD');
-    } else if (faceMovement) {
-      triggerAction('FACE_MOVEMENT');
+    } else if (currentMode === 'one_piece') {
+      if (kick) triggerAction('KICK');
+      else if (squat) triggerAction('SQUAT');
+      else if (handCross) triggerAction('HAND_CROSS');
+      else if (attention) triggerAction('ATTENTION');
+      else if (rightHandUp) triggerAction('RIGHT_HAND_UP');
+      else if (leftHandUp) triggerAction('LEFT_HAND_UP');
+      else if (fastSpeed) triggerAction('HAND_MOVEMENT');
+      else if (headShake || headNod || faceMovement) triggerAction('HEAD_MOVEMENT');
+    } else {
+      // Cat Mode Default triggers
+      if (bothHandsUp) {
+        triggerAction('HANDS_UP');
+      } else if (rightHandUp) {
+        triggerAction('RIGHT_HAND_UP');
+      } else if (fastSpeed) {
+        triggerAction('FAST');
+      } else if (headShake) {
+        triggerAction('HEAD_SHAKE');
+      } else if (headNod) {
+        triggerAction('HEAD_NOD');
+      } else if (faceMovement) {
+        triggerAction('FACE_MOVEMENT');
+      }
     }
   }
   canvasCtx.restore();
