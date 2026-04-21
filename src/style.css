@@ -35,15 +35,34 @@ body {
   margin-bottom: 0.5rem;
 }
 
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 900px) {
+  .content-wrapper {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+  }
+}
+
 .video-container {
   position: relative;
-  width: 640px;
-  height: 480px;
+  width: 100%;
+  max-width: 640px;
+  aspect-ratio: 4 / 3;
+  height: auto;
   background: #1e293b;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
-  margin-bottom: 2rem;
   border: 2px solid #334155;
   display: flex;
   justify-content: center;
@@ -100,8 +119,10 @@ body {
 }
 
 .meme-container {
-  width: 400px;
-  height: 400px;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
+  height: auto;
   display: flex;
   justify-content: center;
   align-items: center;
