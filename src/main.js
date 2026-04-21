@@ -21,7 +21,7 @@ window.addEventListener('keydown', (e) => {
   }
 });
 
-const audioCache = {};
+const assetsCache = {};
 const actionsList = [
   { name: 'HANDS_UP', file: 'hands_up', gif: 'hands_up.gif' },
   { name: 'RIGHT_HAND_UP', file: 'right_hand', gif: 'right_hand.gif' },
@@ -31,19 +31,28 @@ const actionsList = [
   { name: 'FACE_MOVEMENT', file: 'face_move', gif: 'face_move.gif' }
 ];
 
+// Pre-load assets into state memory (Session-lifetime Blobs & Auto-audio)
 actionsList.forEach(action => {
   const audio = new Audio(`/music/${action.file}.mp3`);
-  audio.preload = 'metadata';
+  audio.preload = 'auto'; 
   
-  audioCache[action.name] = {
+  assetsCache[action.name] = {
     audio: audio,
     durationMs: 2000, // fallback
-    gifUrl: `/assets/${action.gif}`
+    gifUrl: `/assets/${action.gif}` // initial fallback url
   };
 
   audio.addEventListener('loadedmetadata', () => {
-    audioCache[action.name].durationMs = audio.duration * 1000;
+    assetsCache[action.name].durationMs = audio.duration * 1000;
   });
+
+  // Fetch GIF as Blob, store in memory cache for instantaneous 0-latency display
+  fetch(`/assets/${action.gif}`)
+    .then(response => response.blob())
+    .then(blob => {
+      assetsCache[action.name].gifUrl = URL.createObjectURL(blob);
+    })
+    .catch(err => console.warn('Failed to cache GIF:', err));
 });
 
 // Actions priority & cooldown
@@ -57,10 +66,10 @@ function triggerAction(actionName, customUrl = null) {
 
   if (customUrl) {
     memeOutput.src = customUrl;
-  } else if (audioCache[actionName]) {
-    memeOutput.src = audioCache[actionName].gifUrl;
-    durationMs = audioCache[actionName].durationMs;
-    const audioObj = audioCache[actionName].audio;
+  } else if (assetsCache[actionName]) {
+    memeOutput.src = assetsCache[actionName].gifUrl;
+    durationMs = assetsCache[actionName].durationMs;
+    const audioObj = assetsCache[actionName].audio;
     audioObj.currentTime = 0;
     audioObj.play().catch(e => console.error('Audio play error:', e));
   }
