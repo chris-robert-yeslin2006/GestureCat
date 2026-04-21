@@ -3,43 +3,65 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gesture Cat Meme App</title>
-  <meta name="description" content="An interactive AI gestural experience with memes." />
+  <title>Gesture Cat Meme Engine | AI Interaction</title>
+  <meta name="description" content="Experience the next generation of interactive memes. Controlled by your body, powered by AI." />
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
   <div id="app">
     <header class="header">
-      <h1>MediaPipe Gesture Memes</h1>
-      <p>Raise arms, lean left/right, wave fast, or perform your hardcoded moves!</p>
+      <h1>Meme <span class="accent-text">Engine</span></h1>
+      <p class="subtitle">Interactive AI Gesture Experience</p>
       
-      <div class="toggle-container" style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: center; align-items: center;">
-        <label for="meme-mode" style="font-size: 1.25rem; font-weight: 600;">Theme: </label>
-        <select id="meme-mode" style="padding: 0.5rem 1rem; border-radius: 8px; font-size: 1.1rem; background: #1e293b; color: white; border: 2px solid var(--accent-color); outline: none; cursor: pointer;">
-          <option value="cat">🐱 Cat Memes</option>
-          <option value="one_piece">☠️ One Piece</option>
-        </select>
+      <div class="toggle-container">
+        <label for="meme-mode">Theme</label>
+        <div class="custom-select-wrapper">
+          <select id="meme-mode">
+            <option value="cat">🐱 Cat Memes</option>
+            <option value="one_piece">☠️ One Piece</option>
+          </select>
+        </div>
       </div>
     </header>
     
-    <div class="content-wrapper">
-      <div class="video-container">
-        <video id="webcam" autoplay playsinline></video>
-        <canvas id="output_canvas" width="640" height="480"></canvas>
-        <div id="overlay">
-          <button id="start-btn" class="btn">Start Experience</button>
+    <main class="content-wrapper">
+      <section class="video-section">
+        <div class="video-container">
+          <video id="webcam" autoplay playsinline></video>
+          <canvas id="output_canvas" width="640" height="480"></canvas>
+          <div id="overlay">
+            <button id="start-btn" class="btn-glow">Start Experience</button>
+          </div>
         </div>
-      </div>
+        <div class="stats-panel">
+          <div class="stat-item">
+            <span class="stat-label">Status</span>
+            <span id="engine-status" class="stat-value">Ready</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Gesture</span>
+            <span id="current-gesture" class="stat-value">None</span>
+          </div>
+        </div>
+      </section>
 
-      <!-- Output meme -->
-      <div class="meme-container">
-        <img id="meme-output" src="https://placehold.co/400x400/png?text=Waiting+for+Gesture" alt="Meme Output" />
-      </div>
-    </div>
+      <section class="meme-section">
+        <div class="meme-container">
+          <img id="meme-output" src="https://placehold.co/400x400/0f172a/f8fafc?text=Waiting+for+Gesture" alt="Meme Output" />
+          <div class="meme-overlay"></div>
+        </div>
+      </section>
+    </main>
 
-    <div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;">
-      <p><b>Developer Mode:</b> Press <code>Spacebar</code> to log your current skeleton pose data to the Console!</p>
-    </div>
+    <footer class="footer">
+      <p><b>Dev Mode:</b> <code>Space</code> to log pose data | <b>Target:</b> 12 FPS</p>
+    </footer>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
@@ -49,3 +71,4 @@
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>
+
