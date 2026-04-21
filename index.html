@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gesture Cat Meme App</title>
+  <meta name="description" content="An interactive AI gestural experience with memes." />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="header">
+      <h1>MediaPipe Gesture Memes</h1>
+      <p>Raise arms, lean left/right, wave fast, or perform your hardcoded moves!</p>
+    </header>
+    
+    <div class="video-container">
+      <video id="webcam" autoplay playsinline></video>
+      <canvas id="output_canvas" width="640" height="480"></canvas>
+      <div id="overlay">
+        <button id="start-btn" class="btn">Start Experience</button>
+      </div>
+    </div>
+
+    <!-- Output meme -->
+    <div class="meme-container">
+      <img id="meme-output" src="https://placehold.co/400x400/png?text=Waiting+for+Gesture" alt="Meme Output" />
+    </div>
+
+    <div style="margin-top: 1rem; color: #94a3b8; font-size: 0.9rem;">
+      <p><b>Developer Mode:</b> Press <code>Spacebar</code> to log your current skeleton pose data to the Console!</p>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
