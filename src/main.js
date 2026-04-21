@@ -21,16 +21,16 @@ if (memeModeSelect) {
   });
 }
 
-// One Piece Mode Assets
+// One Piece Mode Assets (Local GIFs)
 const onePieceGifs = {
-  KICK: 'https://media1.tenor.com/m/ioz-xabcfq4AAAAC/one-piece-burning-blood-one-piece.gif',
-  SQUAT: 'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NDg3N29hM3ZpcTNsdW83bTRscXJhZXNrZW05cGxvY21jZ3Z3MWJycyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/T9lEux2hPQYne/giphy.gif',
-  HEAD_MOVEMENT: 'https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdDk3azJwd2d0NmdiNG4zMHNmeWd2c2h6eDBsdmx0MWJrYzdsd2wzciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/tIZUToOMEFGM0/giphy.gif',
-  HAND_MOVEMENT: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDdrd3M2ZDBjajF0c3ZyaXBleW1wMzVlM2hieGZnNWRxNzE0dXNkeiZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/T9lEux2hPQYne/giphy.gif',
-  ATTENTION: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExc3poaWpyeXQyankxNXZmdDkyNzBidXFkcndjZHluNjc5cDRuejdzZiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/2x6wXvQCaRpQD3ieHz/giphy.gif',
-  RIGHT_HAND_UP: 'https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3bnVsYzVoMjQydHJiMHhtOHNxMmZtMHlkdWp2emY1dmM3YWlvaHBkMSZlcD12MV9naWZzX3JlbGF0ZWQmY3Q9Zw/DSxKEQoQix9hC/giphy.gif',
-  LEFT_HAND_UP: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTl1cTA2enZudmFtODlxeXZxMWxwdGFmd3UyYWJtZ2Z4NnNvNmh1MiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ObHA57EFxQ3O8/giphy.gif',
-  HAND_CROSS: 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeTl1cTA2enZudmFtODlxeXZxMWxwdGFmd3UyYWJtZ2Z4NnNvNmh1MiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3nyIj1d1igD4SGhVvu/giphy.gif'
+  KICK: '/assets/one_piece/kick.gif',
+  SQUAT: '/assets/one_piece/squat.gif',
+  HEAD_MOVEMENT: '/assets/one_piece/head_movement.gif',
+  HAND_MOVEMENT: '/assets/one_piece/hand_movement.gif',
+  ATTENTION: '/assets/one_piece/attention.gif',
+  RIGHT_HAND_UP: '/assets/one_piece/right_hand_up.gif',
+  LEFT_HAND_UP: '/assets/one_piece/left_hand_up.gif',
+  HAND_CROSS: '/assets/one_piece/hand_cross.gif'
 };
 
 // 🔥 DEVELOPER AREA 🔥
@@ -272,7 +272,6 @@ function processLandmarks(results) {
        }
     }
     
-    // Master Trigger Condition List
     if (matchedHardcoded) {
       triggerAction('HARDCODED', matchedHardcoded.gifUrl);
     } else if (currentMode === 'one_piece') {
